@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
-# Configures an Ubuntu machine to install and run Nginx web server
+# This script installs and configures Nginx on Ubuntu to serve a page with "Holberton School"
 
 # Update package list
 apt-get update -y
 
-# Install nginx
-apt-get install nginx -y
+# Install Nginx
+apt-get install -y nginx
 
-# Create a custom index page with "Holberton School"
-echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
-echo "Holberton School for the win!" > /var/www/html/index.html
+# Create a custom HTML page with "Holberton School"
+echo "Holberton School" > /var/www/html/index.html
 
-# Make sure nginx is configured to listen on port 80
-# The default configuration should already be set, but let's ensure it
-
-# Stop nginx if running (to avoid conflicts)
-service nginx stop
-
-# Start nginx service
+# Ensure Nginx is configured to listen on port 80 (default configuration)
+# Start Nginx service
 service nginx start
 
-# Restart nginx to apply changes (without using systemctl)
-service nginx restart
+# Enable Nginx to start on boot
+systemctl enable nginx 2>/dev/null || update-rc.d nginx defaults
