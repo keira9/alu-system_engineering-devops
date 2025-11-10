@@ -1,35 +1,40 @@
 #!/usr/bin/env bash
-# script that install nginx and configure it to redirect to another page when
-# accessing the /redirect_me page.
-sudo apt update -y
-sudo apt install nginx -y
+# Configures Nginx server with a custom 404 error page
 
-mkdir /etc/nginx/html
-touch /etc/nginx/html/index.html
-touch /etc/nginx/html/404.html
-echo "Holberton School" > /etc/nginx/html/index.html
-echo "Ceci n'est pas une page" > /etc/nginx/html/404.html
+# Update package list and install nginx
+apt-get update -y
+apt-get install -y nginx
 
-# store configuration content
-new_config=\
-"server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-               root /var/www/html;
-        index index.html index.htm index.nginx-debian.html;
-        server_name _;
-        location / {
-                try_files \$uri \$uri/ =404;
-        }
-        location /redirect_me { 
-            return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-        }
-	error_page 404 /404.html;
-	location /404 {
-	    root /etc/nginx/html;
-	    internal;
-        }
+# Create custom 404 error page
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+
+# Create a custom Nginx configuration with the redirect and custom 404 page
+cat > /etc/nginx/sites-available/default <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root /var/www/html;
+        internal;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
 }
-"
-echo "$new_config" > /etc/nginx/sites-available/default
-sudo service nginx restart
+EOF
+
+# Test configuration and restart nginx
+nginx -t
+service nginx reload
